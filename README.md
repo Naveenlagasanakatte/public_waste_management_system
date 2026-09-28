@@ -1,9 +1,19 @@
 # Tumakuru City Corporation (TMP - ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ)
 ## Smart Waste Management System (SWMS-2026-P1) — Operations Command Center
 
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Render-10b981?style=for-the-badge&logo=render&logoColor=white)](https://public-waste-management-system.onrender.com/)
+[![Status](https://img.shields.io/badge/Status-Live%20%26%20Deployed-brightgreen?style=for-the-badge)](https://public-waste-management-system.onrender.com/)
+[![City](https://img.shields.io/badge/City-Tumakuru%2C%20Karnataka%2C%20India-blue?style=for-the-badge)](https://public-waste-management-system.onrender.com/)
+
+> ### 🌐 Live Application URL
+> **[https://public-waste-management-system.onrender.com/](https://public-waste-management-system.onrender.com/)**
+>
+> ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ • Tumakuru City Corporation — Smart Waste Command Center
+
 An enterprise-grade, paid-tier Smart Waste Management Command Center and IoT Telemetry Platform purpose-built for the **Tumakuru City Corporation, Municipal Commissioner, Zonal Environmental Engineers, and Sanitation Logistics Fleet**.
 
 ---
+
 
 ## 🏛️ System Architecture Overview
 
