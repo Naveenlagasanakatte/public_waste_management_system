@@ -1,0 +1,9 @@
+# Smart Waste Management System (SWMS-2026-P1) - Python Dependencies
+# Tumakuru City Corporation Production Stack
+
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+requests>=2.31.0
+websockets>=11.0.0
+pytest>=7.4.0

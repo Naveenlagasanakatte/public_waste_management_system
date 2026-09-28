@@ -1,0 +1,25 @@
+# Render.com Deployment Configuration
+# Tumakuru City Corporation — Smart Waste Management System (SWMS-2026-P1)
+# https://render.com/docs/render-yaml-reference
+
+services:
+  - type: web
+    name: tumakuru-swms-server
+    runtime: python
+    region: singapore   # Closest to Karnataka, India
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python run_system.py --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: HOST
+        value: "0.0.0.0"
+      - key: ENVIRONMENT
+        value: production
+      - key: CITY_NAME
+        value: Tumakuru
+      - key: CORPORATION_NAME
+        value: "Tumakuru City Corporation (TMP)"
+      - key: JWT_SECRET_KEY
+        generateValue: true

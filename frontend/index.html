@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ &bull; Tumakuru City Corporation — Smart Waste Command Center</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS for GIS Mapping -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- ====================================================================
+       TUMAKURU MUNICIPAL STAFF LOGIN PORTAL
+       ==================================================================== -->
+  <div class="login-screen-overlay" id="staffLoginOverlay">
+    <div class="login-card-container">
+      <div class="login-header">
+        <div class="login-gov-seal">
+          <div class="login-gov-seal-inner">🏛️</div>
+        </div>
+        <div style="font-size: 0.9rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ</div>
+        <h2 class="login-title">Tumakuru City Corporation (TMP)</h2>
+        <p class="login-subtitle">Smart City Waste Operations Command Portal &bull; Staff Authentication</p>
+      </div>
+
+      <form id="staffLoginForm">
+        <div class="login-form-group">
+          <label class="login-label" for="loginUserId">TMP Staff User ID / ಬಳಕೆದಾರರ ಗುರುತು</label>
+          <div class="login-input-wrap">
+            <input type="text" id="loginUserId" class="login-input" placeholder="e.g. commissioner.tumkur" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="login-form-group">
+          <label class="login-label" for="loginPassword">Official Access Password / ಪಾಸ್ವರ್ಡ್</label>
+          <div class="login-input-wrap">
+            <input type="password" id="loginPassword" class="login-input" placeholder="••••••••••••" required autocomplete="current-password">
+            <button type="button" class="btn-toggle-pwd" id="btnTogglePassword" title="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+
+        <div id="loginErrorMessage" style="display: none; color: #f87171; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; text-align: center;">
+          Invalid TMP Staff Credentials. Please check User ID and Password.
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSubmitLogin" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
+          <span>🔒</span> Authenticate & Enter Command Center
+        </button>
+      </form>
+
+      <!-- 1-Click Demo Accounts Selector -->
+      <div class="demo-login-chips">
+        <div class="demo-chips-title">Or Select Quick Demo Staff Profile:</div>
+        <div class="demo-chips-grid">
+          <button type="button" class="demo-chip-btn" data-user="commissioner.tumkur" data-pwd="tumkur@swms2026">
+            <span>🏛️</span>
+            <div>
+              <div style="font-weight: 700;">Commissioner (TMP)</div>
+              <div style="font-size: 0.65rem; color: #93c5fd;">Sri B.V. Ashwath, IAS</div>
+            </div>
+          </button>
+
+          <button type="button" class="demo-chip-btn" data-user="officer.central" data-pwd="central@tumkur2026">
+            <span>👨‍💼</span>
+            <div>
+              <div style="font-weight: 700;">Zonal Officer</div>
+              <div style="font-size: 0.65rem; color: #93c5fd;">Central & Mandipet</div>
+            </div>
+          </button>
+
+          <button type="button" class="demo-chip-btn" data-user="officer.siddaganga" data-pwd="mutt@tumkur2026">
+            <span>🙏</span>
+            <div>
+              <div style="font-weight: 700;">Zonal Officer</div>
+              <div style="font-size: 0.65rem; color: #93c5fd;">Sri Siddaganga Mutt</div>
+            </div>
+          </button>
+
+          <button type="button" class="demo-chip-btn" data-user="officer.sit" data-pwd="sit@tumkur2026">
+            <span>👩‍💼</span>
+            <div>
+              <div style="font-weight: 700;">Zonal Officer</div>
+              <div style="font-size: 0.65rem; color: #93c5fd;">SIT & Tech Corridor</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       AUTHENTICATED TUMAKURU COMMAND CENTER
+       ==================================================================== -->
+  <div class="app-layout" id="mainAppLayout">
+    
+    <!-- Executive Header -->
+    <header class="gov-top-bar">
+      <div class="gov-brand">
+        <div class="gov-seal-badge">
+          <div class="gov-seal-inner">🏛️</div>
+        </div>
+        <div class="gov-titles">
+          <h1>ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ &bull; Tumakuru City Corporation</h1>
+          <p>Smart City Mission &bull; Smart Waste Operations Command Center (SWMS-2026)</p>
+        </div>
+      </div>
+
+      <!-- Real-time Municipal KPI Strip & Staff Profile -->
+      <div class="gov-stats-strip">
+        <div class="gov-stat-pill compliance-badge" title="Swachh City Compliance Score">
+          <span>🏆</span>
+          <span>Swachh Tumakuru: <strong class="val">97.2% (Grade A+)</strong></span>
+        </div>
+
+        <div class="gov-stat-pill">
+          <span>⚖️</span>
+          <span>Tonnage: <strong class="val" id="hdrTonnage">62.4 T</strong></span>
+        </div>
+
+        <div class="gov-stat-pill">
+          <span>🚛</span>
+          <span>EV Fleet: <strong class="val" id="hdrActiveFleet">4 / 4 Units</strong></span>
+        </div>
+
+        <div class="gov-stat-pill alert-badge-live" id="hdrAlertBadge">
+          <span>🚨</span>
+          <span>Breaches: <strong class="val" id="hdrCriticalCount">4 Bins</strong></span>
+        </div>
+
+        <button class="btn btn-outline" id="btnAudioToggle" title="Toggle Audible Siren for Breaches">
+          <span id="audioIcon">🔊</span> Audio
+        </button>
+
+        <button class="btn btn-gold" id="btnExportReport">
+          <span>📄</span> Export Report
+        </button>
+
+        <!-- Authenticated Staff Profile Pill -->
+        <div class="staff-profile-pill" id="staffProfilePill">
+          <div class="staff-avatar-circle" id="staffAvatar">🏛️</div>
+          <div class="staff-meta-text">
+            <span class="staff-name" id="staffName">Sri B. V. Ashwath, IAS</span>
+            <span class="staff-role-sub" id="staffRole">Commissioner, TMP</span>
+          </div>
+          <button class="btn-logout" id="btnLogoutStaff" title="Sign out of Municipal Portal">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tab Bar -->
+    <nav class="main-nav-tabs">
+      <button class="nav-tab-link active" data-tab="tab-gis-map">
+        <span>🗺️</span> Tumakuru GIS Command Map
+      </button>
+      <button class="nav-tab-link" data-tab="tab-analytics">
+        <span>📊</span> Executive Commission Analytics
+      </button>
+      <button class="nav-tab-link" data-tab="tab-hardware">
+        <span>🛰️</span> Dual-Bin IoT Telemetry
+      </button>
+      <button class="nav-tab-link" data-tab="tab-fleet">
+        <span>🚛</span> TMP Sanitation Fleet & Dispatch
+      </button>
+      <button class="nav-tab-link" data-tab="tab-qa-matrix">
+        <span>🧪</span> 10-Point QA Acceptance Matrix
+      </button>
+      <button class="nav-tab-link" data-tab="tab-audit-logs">
+        <span>📁</span> City Audit Logs (CSV)
+      </button>
+    </nav>
+
+    <!-- TAB 1: TUMAKURU GIS GEOSPATIAL COMMAND MAP -->
+    <main class="city-content" id="tab-gis-map">
+      
+      <!-- Top Action Bar -->
+      <div class="section-action-bar">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">Tumakuru City Ward & Smart Bin Geospatial Map</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            Real-time IoT telemetry across Central Mandipet, Sri Siddaganga Mutt, SIT Tech Campus, and Railway Junction Hubs.
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn btn-danger" id="btnSimulateCitySurge">
+            <span>⚡</span> Simulate Festival Surge (Siddaganga Jathre / Market Rush)
+          </button>
+          <button class="btn btn-primary" id="btnOptimizeAllRoutes">
+            <span>🚀</span> AI Route Optimizer & Dispatch
+          </button>
+        </div>
+      </div>
+
+      <!-- Executive KPI Cards Row -->
+      <div class="exec-kpi-grid">
+        <div class="glass-panel exec-kpi-card" style="--card-accent: #3b82f6;">
+          <div class="kpi-top-row">
+            <span class="kpi-title-text">Tumakuru Monitored Bins</span>
+            <div class="kpi-icon-square" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;">🗑️</div>
+          </div>
+          <div class="kpi-big-number" id="kpiTotalBins">16 Bins</div>
+          <div class="kpi-sub-badge" style="color: #60a5fa;">
+            <span>● 8 Dual-Sensor Hubs Online (TMP)</span>
+          </div>
+        </div>
+
+        <div class="glass-panel exec-kpi-card" style="--card-accent: #10b981;">
+          <div class="kpi-top-row">
+            <span class="kpi-title-text">Avg City Fill Level</span>
+            <div class="kpi-icon-square" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">📊</div>
+          </div>
+          <div class="kpi-big-number" id="kpiAvgFill">56.5%</div>
+          <div class="kpi-sub-badge" style="color: #34d399;">
+            <span>↓ 5.8% Clearance improvement</span>
+          </div>
+        </div>
+
+        <div class="glass-panel exec-kpi-card" style="--card-accent: #ef4444;">
+          <div class="kpi-top-row">
+            <span class="kpi-title-text">Critical Overflow Alerts</span>
+            <div class="kpi-icon-square" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">⚠️</div>
+          </div>
+          <div class="kpi-big-number" style="color: #f87171;" id="kpiCriticalBins">4</div>
+          <div class="kpi-sub-badge" style="color: #fca5a5;">
+            <span>Mandipet & KSRTC Stand Priority</span>
+          </div>
+        </div>
+
+        <div class="glass-panel exec-kpi-card" style="--card-accent: #06b6d4;">
+          <div class="kpi-top-row">
+            <span class="kpi-title-text">Carbon Offset Saved</span>
+            <div class="kpi-icon-square" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">🌱</div>
+          </div>
+          <div class="kpi-big-number" id="kpiCarbonOffset">589.4 kg</div>
+          <div class="kpi-sub-badge" style="color: #67e8f9;">
+            <span>KA-06 EV Fleet Operations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GIS Map + Sidebar Grid -->
+      <div class="gis-map-layout">
+        
+        <!-- Leaflet Map Container -->
+        <div class="glass-panel gis-map-container">
+          <div id="cityGisMap"></div>
+          
+          <!-- Map Style Layer Selector -->
+          <div class="map-style-selector">
+            <span style="font-weight: 700; color: #93c5fd;">🗺️ Map Layer:</span>
+            <select id="mapBasemapSelect">
+              <option value="esri_dark">🌌 Esri Dark Canvas (High-Res &bull; Tumakuru)</option>
+              <option value="osm_standard">🗺️ OpenStreetMap Standard</option>
+              <option value="esri_satellite">🛰️ Satellite Aerial Imagery</option>
+            </select>
+          </div>
+
+          <div class="map-overlay-legend">
+            <div style="font-weight: 700; margin-bottom: 0.2rem; color: #fff;">Legend</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #10b981;"></span> Normal (&lt; 60%)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #f59e0b;"></span> Warning (60-79%)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #ef4444;"></span> Critical (&ge; 80% Threshold)</div>
+            <div class="legend-item"><span class="legend-dot" style="background: #2563eb;"></span> 🚛 TMP EV Garbage Truck</div>
+          </div>
+        </div>
+
+        <!-- Sidebar Ward & Hub Directory -->
+        <div class="glass-panel map-sidebar-panel">
+          <div class="map-sidebar-header">
+            <div>
+              <h3 style="font-size: 1rem; font-weight: 800;">Tumakuru Smart Hubs</h3>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Click to locate on Map & Inspect</span>
+            </div>
+            <span class="gov-stat-pill" style="font-size: 0.7rem;">8 Hubs</span>
+          </div>
+
+          <div class="map-site-list" id="mapSiteDirectoryList">
+            <!-- Dynamically populated from JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Real-Time Municipal Alert Ticker -->
+      <div class="glass-panel" style="padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🔔</span> Live Tumakuru Municipal Alert & Fleet Dispatch Stream
+          </h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">De-duplicated via ESP32 Firmware State Machine &bull; SMS & SMTP Active</span>
+        </div>
+
+        <div class="alert-feed-list" id="cityAlertStream">
+          <!-- Dynamic Alert Rows -->
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 2: EXECUTIVE COMMISSION ANALYTICS -->
+    <main class="city-content" id="tab-analytics" style="display: none;">
+      
+      <div class="section-action-bar">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">Tumakuru Waste Analytics & Segregation Intelligence</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            24-hour diurnal waste curves, segregation breakdown, ward density heatmap, and landfill diversion rates.
+          </p>
+        </div>
+        <button class="btn btn-outline" id="btnRefreshAnalytics">
+          <span>🔄</span> Refresh Analytics
+        </button>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- 24h Hourly Generation Curve -->
+        <div class="glass-panel chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 style="font-size: 1.1rem; font-weight: 800;">24-Hour Tumakuru Waste Inflow Pattern (Tons/Hour)</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">Peaks observed at 08:00 (Morning Market), 13:00 (Lunch), and 19:30 (Evening Bazaar)</p>
+            </div>
+            <span class="gov-stat-pill" style="color: #38bdf8;">Peak: 5.4 T/hr</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="chartHourlyCurve"></canvas>
+          </div>
+        </div>
+
+        <!-- Waste Stream Segregation Breakdown -->
+        <div class="glass-panel chart-card">
+          <div class="chart-header">
+            <div>
+              <h3 style="font-size: 1.1rem; font-weight: 800;">Waste Segregation Index (TMP)</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted);">Organic Bio-Waste vs Dry Recyclables vs Hazardous</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrap" style="display: flex; align-items: center; justify-content: center;">
+            <canvas id="chartSegregationPie"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone-by-Zone Performance Table -->
+      <div class="glass-panel" style="padding: 1.5rem;">
+        <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem;">Tumakuru Zonal Sanitation Performance Scorecard</h3>
+        <div class="qa-table-wrap">
+          <table class="qa-table">
+            <thead>
+              <tr>
+                <th>Zone Name</th>
+                <th>Zonal Officer</th>
+                <th>Wards Covered</th>
+                <th>Smart Hubs</th>
+                <th>Avg Fill Level</th>
+                <th>Daily Tonnage</th>
+                <th>SWM Compliance</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight: 700; color: #60a5fa;">Central & Mandipet Market Zone</td>
+                <td>Dr. Manjunatha Swamy, KAS</td>
+                <td>Ward 08, 12, 15</td>
+                <td>3 Hubs (6 Bins)</td>
+                <td><strong style="color: #ef4444;">86.0% (CRITICAL)</strong></td>
+                <td>28.4 Tons</td>
+                <td><span class="status-tag pass">98.5% (Grade A+)</span></td>
+                <td><button class="btn btn-primary" onclick="dispatchZonalFleet('ZONE_CENTRAL')" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Deploy Extra EV Truck</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #10b981;">Sri Siddaganga Mutt Pilgrim Zone</td>
+                <td>Sri C. N. Shivakumar</td>
+                <td>Ward 32, 35</td>
+                <td>1 Hub (2 Bins)</td>
+                <td><strong style="color: #f59e0b;">75.0% (WARNING)</strong></td>
+                <td>16.2 Tons</td>
+                <td><span class="status-tag pass">99.4% (Grade A+)</span></td>
+                <td><button class="btn btn-primary" onclick="dispatchZonalFleet('ZONE_PILGRIM_SOUTH')" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Pilgrim Route Clear</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #38bdf8;">North SIT & Industrial Belt</td>
+                <td>Smt. Shailaja R. Reddy</td>
+                <td>Ward 24, 28</td>
+                <td>2 Hubs (4 Bins)</td>
+                <td><strong style="color: #10b981;">44.8% (NORMAL)</strong></td>
+                <td>11.5 Tons</td>
+                <td><span class="status-tag pass">96.8% (Grade A)</span></td>
+                <td><button class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Scheduled Route</button></td>
+              </tr>
+              <tr>
+                <td style="font-weight: 700; color: #fbbf24;">West Railway & Amanikere Zone</td>
+                <td>Sri G. Govindaraju</td>
+                <td>Ward 04, 19, 22</td>
+                <td>2 Hubs (4 Bins)</td>
+                <td><strong style="color: #f59e0b;">67.5% (WARNING)</strong></td>
+                <td>6.3 Tons</td>
+                <td><span class="status-tag pass">95.0% (Grade A)</span></td>
+                <td><button class="btn btn-primary" onclick="dispatchZonalFleet('ZONE_WEST_TRANSIT')" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">Station Fast Dispatch</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 3: DUAL-BIN HARDWARE & IOT TELEMETRY -->
+    <main class="city-content" id="tab-hardware" style="display: none;">
+      
+      <div class="section-action-bar">
+        <div class="site-picker" style="display: flex; align-items: center; gap: 1rem;">
+          <label for="hardwareSiteSelect" style="font-weight: 700; font-size: 0.95rem; color: #93c5fd;">SELECT TUMAKURU SMART HUB TO INSPECT:</label>
+          <select id="hardwareSiteSelect" class="site-select" style="min-width: 420px;">
+            <option value="SITE_TUM_001">SITE_TUM_001 — KSRTC Central Bus Terminal & Ashoka Nagar</option>
+            <option value="SITE_TUM_002">SITE_TUM_002 — Mandipet Wholesale Vegetable & Grain Market</option>
+            <option value="SITE_TUM_003">SITE_TUM_003 — MG Road & Tumakuru Town Hall Circle</option>
+            <option value="SITE_TUM_004">SITE_TUM_004 — Sri Siddaganga Mutt Main Pilgrimage Entrance</option>
+            <option value="SITE_TUM_005">SITE_TUM_005 — Siddaganga Institute of Technology (SIT) Gate</option>
+            <option value="SITE_TUM_006">SITE_TUM_006 — Tumakuru Railway Junction (Main Concourse)</option>
+            <option value="SITE_TUM_007">SITE_TUM_007 — Amanikere Lake Promenade & Eco-Park</option>
+            <option value="SITE_TUM_008">SITE_TUM_008 — Vasanthanarasapura Industrial Mega Hub Gate 1</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-success" id="btnEmptyInspectedHub">
+            <span>🗑️</span> Empty & Reset Hub Bins
+          </button>
+        </div>
+      </div>
+
+      <!-- Hub Metadata Banner -->
+      <div class="glass-panel" style="padding: 1.25rem 1.75rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span class="site-ward-tag" id="hwWardName">Ward 08 &bull; Central Zone</span>
+          <h3 style="font-size: 1.25rem; font-weight: 800;" id="hwHubName">KSRTC Central Bus Terminal & Ashoka Nagar</h3>
+          <p style="font-size: 0.8rem; color: var(--text-muted);" id="hwAddress">KSRTC Bus Station Complex, B.H. Road, Tumakuru</p>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <div class="truck-metric-box">
+            <div class="truck-metric-val" id="hwBatteryMv" style="color: #34d399;">4,180 mV</div>
+            <div class="truck-metric-lbl">Solar Battery</div>
+          </div>
+          <div class="truck-metric-box">
+            <div class="truck-metric-val" id="hwTempC">27.5 °C</div>
+            <div class="truck-metric-lbl">Ambient Temp</div>
+          </div>
+          <div class="truck-metric-box">
+            <div class="truck-metric-val" id="hwOdor" style="color: #fbbf24;">Moderate</div>
+            <div class="truck-metric-lbl">Odor Index</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dual 3D Bin Telemetry Cards -->
+      <div class="single-site-telemetry">
+        
+        <!-- Organic Bin -->
+        <div class="glass-panel bin-card organic" id="hwCardOrg">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="bin-tag organic">🌱 SENSOR A &bull; HC-SR04</span>
+              <h3 style="font-size: 1.4rem; font-weight: 800; margin-top: 0.3rem;">Organic Bio-Waste Bin (ಹಸಿ ತ್ಯಾಜ್ಯ)</h3>
+            </div>
+            <span class="bin-state-pill normal" id="hwPillOrg">NORMAL</span>
+          </div>
+
+          <div class="bin-visual-row">
+            <div class="bin-tank-3d">
+              <div class="bin-lid">
+                <div class="sensor-dot"></div>
+                <div class="sensor-dot"></div>
+              </div>
+              <div class="ultrasonic-wave"></div>
+              <div class="bin-fill-liquid organic" id="hwVisualOrg" style="height: 48%;"></div>
+            </div>
+
+            <div class="bin-metrics-grid">
+              <div class="metric-box">
+                <div class="metric-label">Current Fill</div>
+                <div class="metric-val-large" id="hwTxtFillOrg">
+                  <span>48</span><span class="metric-unit">%</span>
+                </div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Sensor Distance</div>
+                <div class="metric-val-large" id="hwTxtDistOrg">
+                  <span>26.0</span><span class="metric-unit">cm</span>
+                </div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Bin Height</div>
+                <div class="metric-val-large">50.0<span class="metric-unit">cm</span></div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Threshold Rule</div>
+                <div class="metric-val-large" style="color: #f59e0b;">&ge; 80<span class="metric-unit">%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Simulator Controls -->
+          <div class="sim-controls-strip">
+            <div class="sim-slider-wrap">
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">INJECT FILL:</span>
+              <input type="range" id="hwSliderOrg" class="sim-slider" min="0" max="100" value="48">
+              <span id="hwSliderValOrg" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800;">48%</span>
+            </div>
+            <button class="btn btn-outline" id="hwBtnAddOrg">+15%</button>
+            <button class="btn btn-success" id="hwBtnEmptyOrg">Empty</button>
+          </div>
+        </div>
+
+        <!-- Dry Waste Bin -->
+        <div class="glass-panel bin-card dry critical" id="hwCardDry">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="bin-tag dry">📦 SENSOR B &bull; HC-SR04</span>
+              <h3 style="font-size: 1.4rem; font-weight: 800; margin-top: 0.3rem;">Dry Recyclables Bin (ಒಣ ತ್ಯಾಜ್ಯ)</h3>
+            </div>
+            <span class="bin-state-pill critical" id="hwPillDry">CRITICAL (&ge;80%)</span>
+          </div>
+
+          <div class="bin-visual-row">
+            <div class="bin-tank-3d">
+              <div class="bin-lid">
+                <div class="sensor-dot"></div>
+                <div class="sensor-dot"></div>
+              </div>
+              <div class="ultrasonic-wave"></div>
+              <div class="bin-fill-liquid dry critical" id="hwVisualDry" style="height: 88%;"></div>
+            </div>
+
+            <div class="bin-metrics-grid">
+              <div class="metric-box">
+                <div class="metric-label">Current Fill</div>
+                <div class="metric-val-large" style="color: #ef4444;" id="hwTxtFillDry">
+                  <span>88</span><span class="metric-unit">%</span>
+                </div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Sensor Distance</div>
+                <div class="metric-val-large" id="hwTxtDistDry">
+                  <span>6.0</span><span class="metric-unit">cm</span>
+                </div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Bin Height</div>
+                <div class="metric-val-large">50.0<span class="metric-unit">cm</span></div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Threshold Rule</div>
+                <div class="metric-val-large" style="color: #ef4444;">&ge; 80<span class="metric-unit">%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Simulator Controls -->
+          <div class="sim-controls-strip">
+            <div class="sim-slider-wrap">
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">INJECT FILL:</span>
+              <input type="range" id="hwSliderDry" class="sim-slider" min="0" max="100" value="88">
+              <span id="hwSliderValDry" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 800;">88%</span>
+            </div>
+            <button class="btn btn-outline" id="hwBtnAddDry">+15%</button>
+            <button class="btn btn-success" id="hwBtnEmptyDry">Empty</button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- TAB 4: SANITATION FLEET & TRUCK DISPATCH -->
+    <main class="city-content" id="tab-fleet" style="display: none;">
+      
+      <div class="section-action-bar">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">Tumakuru Municipal EV Fleet Command (KA-06 Series)</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">
+            Live GPS tracking, compactor capacity fill meters, driver communications, and dispatch orders.
+          </p>
+        </div>
+      </div>
+
+      <div class="fleet-grid" id="fleetGridList">
+        <!-- Dynamically rendered fleet cards -->
+      </div>
+
+    </main>
+
+    <!-- TAB 5: 10-POINT QA ACCEPTANCE MATRIX -->
+    <main class="city-content" id="tab-qa-matrix" style="display: none;">
+      
+      <div class="glass-panel qa-hero-banner">
+        <div>
+          <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">Tumakuru SWMS Phase 1 Prototype — QA Acceptance Matrix</h2>
+          <p style="color: var(--text-secondary); font-size: 0.88rem;">
+            Executes all 10 acceptance criteria defined in <code>SWMS_P1_documentation.md</code> Section 6 for Municipal Commission sign-off.
+          </p>
+        </div>
+        <button class="btn btn-primary" id="btnRunAllQATests" style="font-size: 1rem; padding: 0.8rem 1.6rem;">
+          <span>▶️</span> Run All 10 Validation Tests
+        </button>
+      </div>
+
+      <div class="glass-panel" style="padding: 1.5rem;">
+        <div class="qa-table-wrap">
+          <table class="qa-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Test Specification</th>
+                <th>Validation Method</th>
+                <th>Pass Criteria</th>
+                <th>Live Measured Result</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="qaResultsTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  Click "Run All 10 Validation Tests" to execute live end-to-end verification.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- TAB 6: CITY AUDIT LOGS (CSV) -->
+    <main class="city-content" id="tab-audit-logs" style="display: none;">
+      
+      <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.4rem; font-weight: 800;">Tumakuru Municipal Alert & Dispatch Audit Log Explorer</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem;">Persisted audit trail from <code>alert_engine/alert_log.csv</code></p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-outline" id="btnRefreshCSV"><span>🔄</span> Refresh Log</button>
+          <a class="btn btn-gold" id="btnDownloadCSV" href="/api/logs/csv" download="tumakuru_alert_log.csv"><span>⬇️</span> Download CSV Audit Report</a>
+        </div>
+      </div>
+
+      <div class="glass-panel" style="padding: 1.5rem;">
+        <div class="qa-table-wrap">
+          <table class="qa-table">
+            <thead>
+              <tr>
+                <th>Timestamp (ISO)</th>
+                <th>Site ID</th>
+                <th>Bin Type</th>
+                <th>Fill Level</th>
+                <th>Action Taken</th>
+              </tr>
+            </thead>
+            <tbody id="csvTableBody">
+              <!-- Dynamically populated from CSV endpoint -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Chart.js for Executive Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Logic Scripts -->
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/simulator-ui.js"></script>
+  <script src="/static/js/qa-tester.js"></script>
+</body>
+</html>

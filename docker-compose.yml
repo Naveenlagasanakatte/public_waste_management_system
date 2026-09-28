@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tumakuru-swms-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tumakuru_swms_production
+    restart: always
+    ports:
+      - "${PORT:-8000}:8000"
+    env_file:
+      - .env.example
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CITY_NAME=Tumakuru
+      - CORPORATION_NAME=Tumakuru City Corporation (TMP)
+    volumes:
+      - ./alert_engine:/app/alert_engine
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
