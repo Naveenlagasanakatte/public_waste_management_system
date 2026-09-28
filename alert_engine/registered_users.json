@@ -1,0 +1,19 @@
+{
+  "hassan.officer": {
+    "user_id": "hassan.officer",
+    "password_hash": "563101a2e23668db402f99721c23f2e7a2d81728a0d8ccfc77554133b5318789",
+    "name": "Sri D. Hassan Kumar",
+    "designation": "Corporation Staff",
+    "corporation_name": "Hassan City Municipal Corporation",
+    "badge_id": "REG-HASSAN-024FF7",
+    "role": "ZONAL_OFFICER",
+    "department": "Hassan City Municipal Corporation",
+    "zone": "ALL",
+    "avatar": "👨‍💼",
+    "email": "hassan@hassancmc.gov.in",
+    "phone": "",
+    "city": "Hassan",
+    "account_type": "REGISTERED",
+    "registered_at": "2026-09-29T00:26:27.241760"
+  }
+}

@@ -19,86 +19,143 @@
 <body>
 
   <!-- ====================================================================
-       TUMAKURU MUNICIPAL STAFF LOGIN PORTAL
+       TUMAKURU MUNICIPAL AUTH PORTAL — LOGIN & SELF-SERVICE REGISTRATION
        ==================================================================== -->
   <div class="login-screen-overlay" id="staffLoginOverlay">
-    <div class="login-card-container">
+    <div class="login-card-container" id="loginCardContainer">
+
+      <!-- Header -->
       <div class="login-header">
         <div class="login-gov-seal">
           <div class="login-gov-seal-inner">🏛️</div>
         </div>
         <div style="font-size: 0.9rem; color: #fde68a; font-weight: 700; margin-bottom: 2px;">ತುಮಕೂರು ಮಹಾನಗರ ಪಾಲಿಕೆ</div>
-        <h2 class="login-title">Tumakuru City Corporation (TMP)</h2>
-        <p class="login-subtitle">Smart City Waste Operations Command Portal &bull; Staff Authentication</p>
+        <h2 class="login-title">Smart Waste Command Portal</h2>
+        <p class="login-subtitle">Municipal Corporation &bull; Staff Access System</p>
       </div>
 
-      <form id="staffLoginForm">
-        <div class="login-form-group">
-          <label class="login-label" for="loginUserId">TMP Staff User ID / ಬಳಕೆದಾರರ ಗುರುತು</label>
-          <div class="login-input-wrap">
-            <input type="text" id="loginUserId" class="login-input" placeholder="e.g. commissioner.tumkur" required autocomplete="username">
+      <!-- Tab Switcher -->
+      <div class="auth-tab-switcher" id="authTabSwitcher">
+        <button class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">🔒 Sign In</button>
+        <button class="auth-tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">🏢 Create Account</button>
+      </div>
+
+      <!-- ── LOGIN PANEL ── -->
+      <div id="loginPanel">
+        <form id="staffLoginForm">
+          <div class="login-form-group">
+            <label class="login-label" for="loginUserId">User ID / ಬಳಕೆದಾರರ ಗುರುತು</label>
+            <div class="login-input-wrap">
+              <input type="text" id="loginUserId" class="login-input" placeholder="e.g. commissioner.tumkur" required autocomplete="username">
+            </div>
+          </div>
+          <div class="login-form-group">
+            <label class="login-label" for="loginPassword">Password / ಪಾಸ್ವರ್ಡ್</label>
+            <div class="login-input-wrap">
+              <input type="password" id="loginPassword" class="login-input" placeholder="••••••••••••" required autocomplete="current-password">
+              <button type="button" class="btn-toggle-pwd" id="btnTogglePassword" title="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+          <div id="loginErrorMessage" class="auth-feedback-msg auth-feedback-error" style="display:none;"></div>
+          <button type="submit" class="btn btn-primary" id="btnSubmitLogin" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <span>🔒</span> Sign In &amp; Enter Command Center
+          </button>
+        </form>
+
+        <!-- 1-Click Demo Accounts -->
+        <div class="demo-login-chips">
+          <div class="demo-chips-title">Or Select Quick Demo Staff Profile:</div>
+          <div class="demo-chips-grid">
+            <button type="button" class="demo-chip-btn" data-user="commissioner.tumkur" data-pwd="tumkur@swms2026">
+              <span>🏛️</span>
+              <div><div style="font-weight:700;">Commissioner (TMP)</div><div style="font-size:0.65rem;color:#93c5fd;">Sri B.V. Ashwath, IAS</div></div>
+            </button>
+            <button type="button" class="demo-chip-btn" data-user="officer.central" data-pwd="central@tumkur2026">
+              <span>👨‍💼</span>
+              <div><div style="font-weight:700;">Zonal Officer</div><div style="font-size:0.65rem;color:#93c5fd;">Central &amp; Mandipet</div></div>
+            </button>
+            <button type="button" class="demo-chip-btn" data-user="officer.siddaganga" data-pwd="mutt@tumkur2026">
+              <span>🙏</span>
+              <div><div style="font-weight:700;">Zonal Officer</div><div style="font-size:0.65rem;color:#93c5fd;">Sri Siddaganga Mutt</div></div>
+            </button>
+            <button type="button" class="demo-chip-btn" data-user="officer.sit" data-pwd="sit@tumkur2026">
+              <span>👩‍💼</span>
+              <div><div style="font-weight:700;">Zonal Officer</div><div style="font-size:0.65rem;color:#93c5fd;">SIT &amp; Tech Corridor</div></div>
+            </button>
           </div>
         </div>
+        <p class="auth-switch-hint">New to the portal? <button type="button" class="auth-link-btn" onclick="switchAuthTab('register')">Create a Corporation Account →</button></p>
+      </div>
 
-        <div class="login-form-group">
-          <label class="login-label" for="loginPassword">Official Access Password / ಪಾಸ್ವರ್ಡ್</label>
-          <div class="login-input-wrap">
-            <input type="password" id="loginPassword" class="login-input" placeholder="••••••••••••" required autocomplete="current-password">
-            <button type="button" class="btn-toggle-pwd" id="btnTogglePassword" title="Toggle password visibility">👁️</button>
+      <!-- ── REGISTER PANEL ── -->
+      <div id="registerPanel" style="display:none;">
+        <form id="staffRegisterForm" autocomplete="off">
+          <div class="reg-grid-2">
+            <div class="login-form-group">
+              <label class="login-label" for="regFullName">Full Name *</label>
+              <input type="text" id="regFullName" class="login-input" placeholder="Sri / Smt. Full Name" required>
+            </div>
+            <div class="login-form-group">
+              <label class="login-label" for="regCorpName">Corporation / Organisation *</label>
+              <input type="text" id="regCorpName" class="login-input" placeholder="e.g. Tumakuru City Corporation" required>
+            </div>
           </div>
-        </div>
-
-        <div id="loginErrorMessage" style="display: none; color: #f87171; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; text-align: center;">
-          Invalid TMP Staff Credentials. Please check User ID and Password.
-        </div>
-
-        <button type="submit" class="btn btn-primary" id="btnSubmitLogin" style="width: 100%; padding: 0.85rem; font-size: 1rem;">
-          <span>🔒</span> Authenticate & Enter Command Center
-        </button>
-      </form>
-
-      <!-- 1-Click Demo Accounts Selector -->
-      <div class="demo-login-chips">
-        <div class="demo-chips-title">Or Select Quick Demo Staff Profile:</div>
-        <div class="demo-chips-grid">
-          <button type="button" class="demo-chip-btn" data-user="commissioner.tumkur" data-pwd="tumkur@swms2026">
-            <span>🏛️</span>
-            <div>
-              <div style="font-weight: 700;">Commissioner (TMP)</div>
-              <div style="font-size: 0.65rem; color: #93c5fd;">Sri B.V. Ashwath, IAS</div>
+          <div class="reg-grid-2">
+            <div class="login-form-group">
+              <label class="login-label" for="regUserId">Choose User ID *</label>
+              <input type="text" id="regUserId" class="login-input" placeholder="e.g. officer.hassan" required autocomplete="off">
+              <div class="reg-hint">Lowercase letters, dots allowed. Min 4 chars.</div>
             </div>
-          </button>
-
-          <button type="button" class="demo-chip-btn" data-user="officer.central" data-pwd="central@tumkur2026">
-            <span>👨‍💼</span>
-            <div>
-              <div style="font-weight: 700;">Zonal Officer</div>
-              <div style="font-size: 0.65rem; color: #93c5fd;">Central & Mandipet</div>
+            <div class="login-form-group">
+              <label class="login-label" for="regRole">Role</label>
+              <select id="regRole" class="login-input">
+                <option value="COMMISSIONER">Commissioner</option>
+                <option value="ZONAL_OFFICER">Zonal Officer</option>
+                <option value="SANITATION_INSPECTOR">Sanitation Inspector</option>
+                <option value="FIELD_OPERATOR">Field Operator</option>
+                <option value="DATA_ANALYST">Data Analyst</option>
+                <option value="ADMIN">Admin</option>
+                <option value="STAFF" selected>Staff</option>
+              </select>
             </div>
-          </button>
-
-          <button type="button" class="demo-chip-btn" data-user="officer.siddaganga" data-pwd="mutt@tumkur2026">
-            <span>🙏</span>
-            <div>
-              <div style="font-weight: 700;">Zonal Officer</div>
-              <div style="font-size: 0.65rem; color: #93c5fd;">Sri Siddaganga Mutt</div>
+          </div>
+          <div class="reg-grid-2">
+            <div class="login-form-group">
+              <label class="login-label" for="regCity">City</label>
+              <input type="text" id="regCity" class="login-input" placeholder="e.g. Tumakuru" value="Tumakuru">
             </div>
-          </button>
-
-          <button type="button" class="demo-chip-btn" data-user="officer.sit" data-pwd="sit@tumkur2026">
-            <span>👩‍💼</span>
-            <div>
-              <div style="font-weight: 700;">Zonal Officer</div>
-              <div style="font-size: 0.65rem; color: #93c5fd;">SIT & Tech Corridor</div>
+            <div class="login-form-group">
+              <label class="login-label" for="regEmail">Official Email (optional)</label>
+              <input type="email" id="regEmail" class="login-input" placeholder="name@corporation.gov.in">
             </div>
+          </div>
+          <div class="reg-grid-2">
+            <div class="login-form-group">
+              <label class="login-label" for="regPassword">Password * <span style="font-weight:400;font-size:0.7rem;">(min 6 chars)</span></label>
+              <div class="login-input-wrap">
+                <input type="password" id="regPassword" class="login-input" placeholder="••••••••" required autocomplete="new-password">
+                <button type="button" class="btn-toggle-pwd" id="btnToggleRegPwd" title="Show password">👁️</button>
+              </div>
+            </div>
+            <div class="login-form-group">
+              <label class="login-label" for="regConfirmPassword">Confirm Password *</label>
+              <input type="password" id="regConfirmPassword" class="login-input" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+          </div>
+          <div id="registerErrorMessage" class="auth-feedback-msg auth-feedback-error" style="display:none;"></div>
+          <div id="registerSuccessMessage" class="auth-feedback-msg auth-feedback-success" style="display:none;"></div>
+          <button type="submit" class="btn btn-primary" id="btnSubmitRegister" style="width:100%; padding:0.85rem; font-size:1rem; background:linear-gradient(135deg,#059669,#10b981); box-shadow:0 4px 18px rgba(16,185,129,0.3);">
+            <span>🏢</span> Create Account &amp; Sign In
           </button>
-        </div>
+        </form>
+        <p class="auth-switch-hint">Already have an account? <button type="button" class="auth-link-btn" onclick="switchAuthTab('login')">← Sign In</button></p>
       </div>
 
     </div>
   </div>
 
-  <!-- ====================================================================
+
+    <!-- ====================================================================
        AUTHENTICATED TUMAKURU COMMAND CENTER
        ==================================================================== -->
   <div class="app-layout" id="mainAppLayout">

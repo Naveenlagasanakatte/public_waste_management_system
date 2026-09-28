@@ -9,6 +9,7 @@ Coordinates: 13.3392° N, 77.1018° E
 
 import asyncio
 import csv
+import hashlib
 import json
 import os
 import random
@@ -116,6 +117,50 @@ TUMAKURU_STAFF_USERS: Dict[str, Dict[str, Any]] = {
         "email": "inspector.nagaraj@tumkurcity.gov.in"
     }
 }
+
+# ---------------------------------------------------------------------------
+# REGISTERED USERS STORE (self-service corporation account sign-up)
+# Persisted to a JSON file so accounts survive server restarts
+# ---------------------------------------------------------------------------
+_REGISTERED_USERS_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "alert_engine", "registered_users.json"
+)
+
+ROLE_AVATARS = {
+    "COMMISSIONER": "🏛️",
+    "ZONAL_OFFICER": "👨‍💼",
+    "SANITATION_INSPECTOR": "👷",
+    "FIELD_OPERATOR": "🦺",
+    "DATA_ANALYST": "📊",
+    "ADMIN": "🔐",
+    "STAFF": "🧑‍💼",
+}
+
+def _hash_password(password: str) -> str:
+    """SHA-256 password hash with a salt prefix."""
+    salt = "SWMS_TMP_SALT_2026"
+    return hashlib.sha256(f"{salt}{password}".encode()).hexdigest()
+
+def _load_registered_users() -> Dict[str, Dict[str, Any]]:
+    try:
+        if os.path.exists(_REGISTERED_USERS_FILE):
+            with open(_REGISTERED_USERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+def _save_registered_users(users: Dict[str, Dict[str, Any]]) -> None:
+    try:
+        os.makedirs(os.path.dirname(_REGISTERED_USERS_FILE), exist_ok=True)
+        with open(_REGISTERED_USERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(users, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+
+# Load persisted registered users at startup
+REGISTERED_USERS: Dict[str, Dict[str, Any]] = _load_registered_users()
 
 ACTIVE_AUTH_SESSIONS: Dict[str, Dict[str, Any]] = {}
 
@@ -490,43 +535,128 @@ dispatcher = AlertDispatcher(
 
 
 # ---------------------------------------------------------------------------
-# STAFF AUTHENTICATION ENDPOINTS
+# STAFF AUTHENTICATION & SELF-SERVICE REGISTRATION ENDPOINTS
 # ---------------------------------------------------------------------------
 class LoginPayload(BaseModel):
     user_id: Optional[str] = None
     username: Optional[str] = None
     password: str
 
-@app.post("/api/auth/login")
-async def staff_login(payload: LoginPayload):
-    uid = payload.user_id or payload.username or ""
-    user = TUMAKURU_STAFF_USERS.get(uid)
-    if not user or user["password"] != payload.password:
-        raise HTTPException(status_code=401, detail="Invalid Tumakuru Municipal Staff User ID or Password")
+class RegisterPayload(BaseModel):
+    user_id: str
+    password: str
+    confirm_password: str
+    full_name: str
+    corporation_name: str
+    designation: Optional[str] = "Corporation Staff"
+    role: Optional[str] = "STAFF"
+    city: Optional[str] = "Tumakuru"
+    email: Optional[str] = ""
+    phone: Optional[str] = ""
 
-    token = f"tmp_tok_{secrets.token_hex(24)}"
-    session_data = {
+def _build_session(user: Dict[str, Any], token: str) -> Dict[str, Any]:
+    """Build a standardised session dict from any user record."""
+    return {
         "token": token,
         "user_id": user["user_id"],
         "name": user["name"],
-        "designation": user["designation"],
-        "badge_id": user["badge_id"],
-        "role": user["role"],
-        "department": user["department"],
-        "zone": user["zone"],
-        "avatar": user["avatar"],
-        "email": user["email"],
+        "designation": user.get("designation", "Corporation Staff"),
+        "badge_id": user.get("badge_id", f"REG-{user['user_id'][:6].upper()}"),
+        "role": user.get("role", "STAFF"),
+        "department": user.get("department", user.get("corporation_name", "Municipal Corporation")),
+        "zone": user.get("zone", "ALL"),
+        "avatar": user.get("avatar", "🏢"),
+        "email": user.get("email", ""),
+        "city": user.get("city", "Tumakuru"),
+        "corporation_name": user.get("corporation_name", ""),
+        "account_type": user.get("account_type", "REGISTERED"),
         "login_time": datetime.now().isoformat()
     }
+
+@app.post("/api/auth/register")
+async def register_user(payload: RegisterPayload):
+    """Self-service corporation account registration."""
+    uid = payload.user_id.strip().lower().replace(" ", ".")
+
+    # Validation
+    if len(uid) < 4:
+        raise HTTPException(status_code=400, detail="User ID must be at least 4 characters.")
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters.")
+    if payload.password != payload.confirm_password:
+        raise HTTPException(status_code=400, detail="Passwords do not match.")
+    if not payload.full_name.strip():
+        raise HTTPException(status_code=400, detail="Full name is required.")
+    if not payload.corporation_name.strip():
+        raise HTTPException(status_code=400, detail="Corporation / Organisation name is required.")
+
+    # Check duplicates against both hardcoded staff and registered users
+    if uid in TUMAKURU_STAFF_USERS:
+        raise HTTPException(status_code=409, detail="User ID is reserved. Please choose a different one.")
+    if uid in REGISTERED_USERS:
+        raise HTTPException(status_code=409, detail="User ID already registered. Please log in.")
+
+    role = payload.role.upper() if payload.role else "STAFF"
+    avatar = ROLE_AVATARS.get(role, "🏢")
+    badge_id = f"REG-{uid[:6].upper()}-{secrets.token_hex(3).upper()}"
+
+    new_user: Dict[str, Any] = {
+        "user_id": uid,
+        "password_hash": _hash_password(payload.password),
+        "name": payload.full_name.strip(),
+        "designation": payload.designation or "Corporation Staff",
+        "corporation_name": payload.corporation_name.strip(),
+        "badge_id": badge_id,
+        "role": role,
+        "department": payload.corporation_name.strip(),
+        "zone": "ALL",
+        "avatar": avatar,
+        "email": payload.email or "",
+        "phone": payload.phone or "",
+        "city": payload.city or "Tumakuru",
+        "account_type": "REGISTERED",
+        "registered_at": datetime.now().isoformat()
+    }
+
+    REGISTERED_USERS[uid] = new_user
+    _save_registered_users(REGISTERED_USERS)
+
+    # Auto-login after registration
+    token = f"tmp_tok_{secrets.token_hex(24)}"
+    session_data = _build_session(new_user, token)
     ACTIVE_AUTH_SESSIONS[token] = session_data
 
-    log_alert("AUTH", "SYSTEM", 0, f"LOGIN_SUCCESS_{user['user_id']}", log_file=LOG_FILE_PATH)
+    log_alert("AUTH", "SYSTEM", 0, f"NEW_USER_REGISTERED_{uid}", log_file=LOG_FILE_PATH)
     return {
-        "status": "SUCCESS",
-        "message": f"Welcome, {user['name']}",
+        "status": "REGISTERED",
+        "message": f"Account created! Welcome, {new_user['name']}",
         "token": token,
         "user": session_data
     }
+
+@app.post("/api/auth/login")
+async def staff_login(payload: LoginPayload):
+    uid = (payload.user_id or payload.username or "").strip()
+
+    # 1. Check hardcoded TMP staff (plaintext passwords, legacy accounts)
+    staff = TUMAKURU_STAFF_USERS.get(uid)
+    if staff and staff["password"] == payload.password:
+        token = f"tmp_tok_{secrets.token_hex(24)}"
+        session_data = _build_session({**staff, "account_type": "TMP_STAFF"}, token)
+        ACTIVE_AUTH_SESSIONS[token] = session_data
+        log_alert("AUTH", "SYSTEM", 0, f"LOGIN_SUCCESS_{uid}", log_file=LOG_FILE_PATH)
+        return {"status": "SUCCESS", "message": f"Welcome, {staff['name']}", "token": token, "user": session_data}
+
+    # 2. Check self-registered users (hashed passwords)
+    reg_user = REGISTERED_USERS.get(uid)
+    if reg_user and reg_user.get("password_hash") == _hash_password(payload.password):
+        token = f"tmp_tok_{secrets.token_hex(24)}"
+        session_data = _build_session(reg_user, token)
+        ACTIVE_AUTH_SESSIONS[token] = session_data
+        log_alert("AUTH", "SYSTEM", 0, f"LOGIN_SUCCESS_{uid}", log_file=LOG_FILE_PATH)
+        return {"status": "SUCCESS", "message": f"Welcome, {reg_user['name']}", "token": token, "user": session_data}
+
+    raise HTTPException(status_code=401, detail="Invalid User ID or Password. Please check your credentials.")
 
 @app.get("/api/auth/me")
 async def get_current_user(authorization: Optional[str] = Header(None)):
@@ -536,7 +666,7 @@ async def get_current_user(authorization: Optional[str] = Header(None)):
     session = ACTIVE_AUTH_SESSIONS.get(token)
     if not session:
         if token == "demo_admin_token":
-            return TUMAKURU_STAFF_USERS["commissioner.tumkur"]
+            return _build_session({**TUMAKURU_STAFF_USERS["commissioner.tumkur"], "account_type": "TMP_STAFF"}, token)
         raise HTTPException(status_code=401, detail="Session expired or invalid")
     return session
 
@@ -545,7 +675,7 @@ async def staff_logout(authorization: Optional[str] = Header(None)):
     if authorization:
         token = authorization.replace("Bearer ", "").strip()
         ACTIVE_AUTH_SESSIONS.pop(token, None)
-    return {"status": "LOGGED_OUT", "message": "Tumakuru Municipal session ended"}
+    return {"status": "LOGGED_OUT", "message": "Municipal session ended. Have a great day!"}
 
 @app.get("/api/auth/demo-accounts")
 async def get_demo_accounts():
@@ -561,6 +691,25 @@ async def get_demo_accounts():
         }
         for u in TUMAKURU_STAFF_USERS.values()
     ]
+
+@app.get("/api/auth/registered-users")
+async def get_registered_users():
+    """List all self-registered corporation accounts (admin view)."""
+    return {
+        "total": len(REGISTERED_USERS),
+        "users": [
+            {
+                "user_id": u["user_id"],
+                "name": u["name"],
+                "corporation_name": u["corporation_name"],
+                "role": u["role"],
+                "avatar": u["avatar"],
+                "city": u.get("city", ""),
+                "registered_at": u.get("registered_at", "")
+            }
+            for u in REGISTERED_USERS.values()
+        ]
+    }
 
 
 # ---------------------------------------------------------------------------

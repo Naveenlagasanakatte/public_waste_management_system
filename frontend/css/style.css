@@ -268,7 +268,113 @@ body {
   border-color: rgba(59, 130, 246, 0.4);
 }
 
-/* Staff Profile Badge in Top Nav */
+/* Auth Tab Switcher */
+.auth-tab-switcher {
+  display: flex;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 1.5rem;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-sm) - 3px);
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.auth-tab-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.auth-tab-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+/* Register Form Grid */
+.reg-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+@media (max-width: 540px) {
+  .reg-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.reg-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* Feedback Messages */
+.auth-feedback-msg {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-xs);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.auth-feedback-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.auth-feedback-success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+/* Auth Switch Hint */
+.auth-switch-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 1.25rem;
+}
+
+.auth-link-btn {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-size: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-link-btn:hover {
+  color: #93c5fd;
+}
+
+/* Wider card when register panel is open */
+.login-card-container.register-mode {
+  max-width: 680px;
+}
+
+
 .staff-profile-pill {
   display: flex;
   align-items: center;

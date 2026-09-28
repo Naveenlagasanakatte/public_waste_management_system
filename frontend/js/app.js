@@ -138,6 +138,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // ---------------------------------------------------------------------------
+// AUTH TAB SWITCH — global so inline onclick="switchAuthTab()" works
+// ---------------------------------------------------------------------------
+function switchAuthTab(tab) {
+  const loginPanel    = document.getElementById("loginPanel");
+  const registerPanel = document.getElementById("registerPanel");
+  const tabLogin      = document.getElementById("tabBtnLogin");
+  const tabRegister   = document.getElementById("tabBtnRegister");
+  const card          = document.getElementById("loginCardContainer");
+
+  if (tab === "register") {
+    loginPanel.style.display    = "none";
+    registerPanel.style.display = "block";
+    tabLogin.classList.remove("active");
+    tabRegister.classList.add("active");
+    if (card) card.classList.add("register-mode");
+  } else {
+    loginPanel.style.display    = "block";
+    registerPanel.style.display = "none";
+    tabLogin.classList.add("active");
+    tabRegister.classList.remove("active");
+    if (card) card.classList.remove("register-mode");
+  }
+}
+
+// ---------------------------------------------------------------------------
 // TUMAKURU MUNICIPAL STAFF AUTHENTICATION SYSTEM
 // ---------------------------------------------------------------------------
 function initAuthSystem() {
@@ -211,13 +236,114 @@ function initAuthSystem() {
     btn.addEventListener("click", async () => {
       const u = btn.getAttribute("data-user");
       const p = btn.getAttribute("data-pwd");
-      // Update fields for visual feedback
       document.getElementById("loginUserId").value = u;
       document.getElementById("loginPassword").value = p;
-      // Call login directly with explicit credentials
       await performLogin(u, p);
     });
   });
+
+  // Register password toggle
+  const btnToggleRegPwd = document.getElementById("btnToggleRegPwd");
+  const regPwdInput = document.getElementById("regPassword");
+  if (btnToggleRegPwd && regPwdInput) {
+    btnToggleRegPwd.addEventListener("click", () => {
+      const show = regPwdInput.type === "password";
+      regPwdInput.type = show ? "text" : "password";
+      btnToggleRegPwd.textContent = show ? "🙈" : "👁️";
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // REGISTRATION FORM HANDLER
+  // ---------------------------------------------------------------------------
+  const registerForm = document.getElementById("staffRegisterForm");
+  const regErr = document.getElementById("registerErrorMessage");
+  const regOk  = document.getElementById("registerSuccessMessage");
+
+  if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fullName     = document.getElementById("regFullName").value.trim();
+      const corpName     = document.getElementById("regCorpName").value.trim();
+      const userId       = document.getElementById("regUserId").value.trim().toLowerCase();
+      const role         = document.getElementById("regRole").value;
+      const city         = document.getElementById("regCity").value.trim();
+      const email        = document.getElementById("regEmail").value.trim();
+      const password     = document.getElementById("regPassword").value;
+      const confirmPwd   = document.getElementById("regConfirmPassword").value;
+      const btnReg       = document.getElementById("btnSubmitRegister");
+
+      // Client-side validation
+      if (!fullName)       { showRegError("Full name is required."); return; }
+      if (!corpName)       { showRegError("Corporation / Organisation name is required."); return; }
+      if (userId.length < 4) { showRegError("User ID must be at least 4 characters."); return; }
+      if (password.length < 6) { showRegError("Password must be at least 6 characters."); return; }
+      if (password !== confirmPwd) { showRegError("Passwords do not match."); return; }
+
+      // Loading state
+      btnReg.disabled = true;
+      btnReg.textContent = "Creating account…";
+      hideRegMessages();
+
+      try {
+        const resp = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_id: userId,
+            password: password,
+            confirm_password: confirmPwd,
+            full_name: fullName,
+            corporation_name: corpName,
+            role: role,
+            city: city,
+            email: email
+          })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          showRegError(data.detail || "Registration failed. Please try again.");
+          return;
+        }
+
+        // Success — store session and enter dashboard
+        cityState.authToken = data.token;
+        cityState.authenticatedUser = data.user;
+        localStorage.setItem("swms_auth_token", data.token);
+        localStorage.setItem("swms_user_profile", JSON.stringify(data.user));
+
+        showRegSuccess(`✅ Account created! Welcome, ${data.user.name}. Entering the Command Center…`);
+
+        setTimeout(() => {
+          hideLoginOverlay();
+          updateStaffBadgeUI(data.user);
+        }, 1200);
+
+      } catch (err) {
+        console.error("Registration error:", err);
+        showRegError("Network error. Please check your connection and try again.");
+      } finally {
+        btnReg.disabled = false;
+        btnReg.innerHTML = "<span>🏢</span> Create Account & Sign In";
+      }
+    });
+  }
+
+  function showRegError(msg) {
+    if (regErr) { regErr.textContent = msg; regErr.style.display = "block"; }
+    if (regOk)  { regOk.style.display = "none"; }
+  }
+  function showRegSuccess(msg) {
+    if (regOk)  { regOk.textContent = msg; regOk.style.display = "block"; }
+    if (regErr) { regErr.style.display = "none"; }
+  }
+  function hideRegMessages() {
+    if (regErr) regErr.style.display = "none";
+    if (regOk)  regOk.style.display  = "none";
+  }
 
   // Logout Button
   if (btnLogout) {
