@@ -599,6 +599,18 @@ function initGisMap() {
   // Set default Esri Dark Gray Canvas (Clean, Dark, Zero Watermarks)
   switchBasemap("esri_dark");
   renderMapMarkers();
+
+  // Resize and orientation listener for seamless mobile responsiveness
+  window.addEventListener('resize', () => {
+    if (cityState.map) {
+      setTimeout(() => cityState.map.invalidateSize(), 150);
+    }
+  });
+  window.addEventListener('orientationchange', () => {
+    if (cityState.map) {
+      setTimeout(() => cityState.map.invalidateSize(), 250);
+    }
+  });
 }
 
 function switchBasemap(styleKey) {

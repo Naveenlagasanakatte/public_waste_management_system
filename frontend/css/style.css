@@ -118,7 +118,9 @@ body {
   padding: 2.5rem;
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px rgba(59, 130, 246, 0.25);
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 94vh;
+  overscroll-behavior: contain;
 }
 
 .login-card-container::before {
@@ -665,7 +667,7 @@ body {
 /* Executive KPI Grid */
 .exec-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: 1.25rem;
   margin-bottom: 1.75rem;
 }
@@ -937,7 +939,7 @@ body {
 /* Fleet Dispatch Command Grid */
 .fleet-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -999,7 +1001,7 @@ body {
 /* Dual Bin Hero Visualizer (Single Site Deep Dive) */
 .single-site-telemetry {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
   gap: 2rem;
   margin-bottom: 2.5rem;
 }
@@ -1195,8 +1197,8 @@ body {
 }
 
 /* QA & CSV tables */
-.qa-table-wrap { overflow-x: auto; }
-.qa-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+.qa-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.qa-table { width: 100%; min-width: 580px; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
 .qa-table th { padding: 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; }
 .qa-table td { padding: 1.1rem 1rem; border-bottom: 1px solid var(--border-subtle); }
 .qa-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
@@ -1210,3 +1212,785 @@ body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.25); }
 ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+
+/* ==========================================================================
+   COMPONENT STYLES (HARDWARE INSPECTOR, BANNERS, CONTROLS)
+   ========================================================================== */
+
+.section-actions-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Site Picker in Hardware Tab */
+.site-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.site-picker-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #93c5fd;
+}
+
+.site-select {
+  min-width: 320px;
+  max-width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-subtle);
+  color: #fff;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  outline: none;
+  font-family: var(--font-main);
+  transition: var(--transition-smooth);
+}
+
+.site-select:focus {
+  border-color: var(--color-vip-blue);
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+/* Hub Metadata Banner */
+.hw-meta-banner {
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.hw-meta-metrics {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Bin Tags & Badges */
+.bin-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+}
+
+.bin-tag.organic {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.bin-tag.dry {
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.bin-state-pill {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.bin-state-pill.normal {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.bin-state-pill.critical {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  animation: pulse-border-red 1.5s infinite;
+}
+
+/* Bin Metrics Box */
+.metric-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.metric-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+}
+
+.metric-val-large {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #fff;
+  line-height: 1.1;
+}
+
+.metric-unit {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+/* Simulator Control Strip */
+.sim-controls-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.sim-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 180px;
+}
+
+.sim-slider {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+/* QA Hero Banner & Audit Banner */
+.qa-hero-banner {
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.audit-header-banner {
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.audit-btn-group {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   MOBILE & RESPONSIVE DESIGN BREAKPOINTS
+   ========================================================================== */
+
+/* Tablet & Medium Screen Adaptations (<= 1024px) */
+@media (max-width: 1024px) {
+  .gov-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.85rem 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .gov-stats-strip {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .gis-map-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile & Tablet Portrait Adaptations (<= 768px) */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Staff & Corporation Auth Portal Overlay on Mobile */
+  .login-screen-overlay {
+    padding: 0.75rem 0.5rem;
+    align-items: flex-start;
+    padding-top: 1rem;
+    overflow-y: auto;
+  }
+
+  .login-card-container {
+    padding: 1.4rem 1.15rem;
+    border-radius: 18px;
+    max-height: 92vh;
+  }
+
+  .login-card-container.register-mode {
+    max-width: 100%;
+  }
+
+  .login-gov-seal {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 0.75rem;
+  }
+
+  .login-gov-seal-inner {
+    font-size: 1.7rem;
+  }
+
+  .login-title {
+    font-size: 1.25rem;
+  }
+
+  .login-subtitle {
+    font-size: 0.72rem;
+  }
+
+  .auth-tab-switcher {
+    margin-bottom: 1.2rem;
+  }
+
+  .auth-tab-btn {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .demo-chips-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .demo-chip-btn {
+    padding: 0.55rem 0.75rem;
+    font-size: 0.76rem;
+    min-height: 42px;
+  }
+
+  .reg-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .login-input {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    min-height: 42px;
+  }
+
+  /* Executive Top Header on Mobile */
+  .gov-top-bar {
+    padding: 0.75rem 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .gov-brand {
+    gap: 0.75rem;
+  }
+
+  .gov-seal-badge {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  .gov-seal-inner {
+    font-size: 1.25rem;
+  }
+
+  .gov-titles h1 {
+    font-size: 1.05rem;
+    line-height: 1.25;
+  }
+
+  .gov-titles p {
+    font-size: 0.68rem;
+    line-height: 1.2;
+  }
+
+  .gov-stats-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .gov-stat-pill {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.55rem;
+    gap: 0.35rem;
+  }
+
+  .staff-profile-pill {
+    padding: 0.2rem 0.55rem;
+    gap: 0.4rem;
+    margin-left: auto;
+  }
+
+  .staff-name {
+    font-size: 0.75rem;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .staff-role-sub {
+    display: none;
+  }
+
+  #btnAudioToggle, #btnExportReport {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  /* Navigation Tabs on Mobile */
+  .main-nav-tabs {
+    padding: 0 0.5rem;
+    gap: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .main-nav-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-tab-link {
+    padding: 0.65rem 0.8rem;
+    font-size: 0.78rem;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  /* Main Viewport Container & Action Bars */
+  .city-content {
+    padding: 0.85rem 0.65rem;
+  }
+
+  .section-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-action-bar h2 {
+    font-size: 1.15rem;
+    line-height: 1.3;
+  }
+
+  .section-action-bar p {
+    font-size: 0.78rem;
+  }
+
+  .section-actions-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .section-actions-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Responsive KPI Grid on Mobile */
+  .exec-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .exec-kpi-card {
+    padding: 0.85rem 0.75rem;
+  }
+
+  .kpi-icon-square {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .kpi-title-text {
+    font-size: 0.66rem;
+    letter-spacing: 0.02em;
+  }
+
+  .kpi-big-number {
+    font-size: 1.35rem;
+  }
+
+  .kpi-sub-badge {
+    font-size: 0.62rem;
+    margin-top: 0.25rem;
+  }
+
+  /* GIS Map on Mobile */
+  .gis-map-container {
+    height: 350px;
+    border-radius: var(--radius-sm);
+  }
+
+  #cityGisMap {
+    height: 350px;
+  }
+
+  .map-style-selector {
+    top: 10px;
+    left: 45px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.68rem;
+    gap: 0.3rem;
+    max-width: 195px;
+  }
+
+  .map-style-selector select {
+    font-size: 0.68rem;
+    padding: 0.15rem 0.35rem;
+    max-width: 115px;
+  }
+
+  .map-overlay-legend {
+    top: auto;
+    bottom: 8px;
+    right: 8px;
+    left: auto;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+    gap: 0.25rem;
+    background: rgba(10, 15, 28, 0.94);
+    border-radius: 6px;
+  }
+
+  .map-sidebar-panel {
+    max-height: 320px;
+  }
+
+  .map-sidebar-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .map-site-list {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .site-item-card {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .site-name-title {
+    font-size: 0.82rem;
+  }
+
+  /* Alerts Stream on Mobile */
+  .alert-feed-list {
+    max-height: 360px;
+    gap: 0.5rem;
+  }
+
+  .alert-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.75rem 0.85rem;
+  }
+
+  .alert-row > div:last-child {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .alert-row button {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  /* Tab 2: Analytics on Mobile */
+  .analytics-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chart-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .chart-canvas-wrap {
+    min-height: 220px;
+    height: 230px;
+  }
+
+  .chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .chart-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .chart-header p {
+    font-size: 0.7rem;
+  }
+
+  /* Tab 3: Hardware on Mobile */
+  .site-picker {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .site-picker-label {
+    font-size: 0.8rem;
+  }
+
+  .site-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.82rem;
+  }
+
+  .hw-meta-banner {
+    padding: 1rem 0.85rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hw-meta-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .single-site-telemetry {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .bin-card {
+    padding: 1.25rem 0.85rem;
+  }
+
+  .bin-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .bin-visual-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .bin-tank-3d {
+    width: 110px;
+    height: 180px;
+  }
+
+  .bin-metrics-grid {
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .metric-box {
+    padding: 0.5rem;
+  }
+
+  .metric-val-large {
+    font-size: 1.2rem;
+  }
+
+  .metric-label {
+    font-size: 0.66rem;
+  }
+
+  .sim-controls-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .sim-slider-wrap {
+    width: 100%;
+  }
+
+  .sim-controls-strip .btn {
+    width: 100%;
+  }
+
+  /* Tab 4: Fleet Grid on Mobile */
+  .fleet-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .truck-card {
+    padding: 1.15rem 0.85rem;
+    gap: 0.85rem;
+  }
+
+  .truck-metrics-row {
+    gap: 0.35rem;
+  }
+
+  .truck-metric-box {
+    padding: 0.45rem 0.2rem;
+  }
+
+  .truck-metric-val {
+    font-size: 0.9rem;
+  }
+
+  .truck-metric-lbl {
+    font-size: 0.58rem;
+  }
+
+  /* Tab 5 & 6: QA Matrix & Audit Logs on Mobile */
+  .qa-hero-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.15rem 0.85rem;
+    gap: 0.85rem;
+  }
+
+  #btnRunAllQATests {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.9rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .audit-header-banner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.15rem 0.85rem;
+    gap: 0.75rem;
+  }
+
+  .audit-btn-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .audit-btn-group .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .qa-table th, .qa-table td {
+    padding: 0.65rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* Compact Smart Phones (<= 480px) */
+@media (max-width: 480px) {
+  .gov-titles h1 {
+    font-size: 0.95rem;
+  }
+
+  .gov-titles p {
+    font-size: 0.62rem;
+  }
+
+  .gov-stat-pill {
+    font-size: 0.68rem;
+    padding: 0.2rem 0.45rem;
+  }
+
+  .staff-name {
+    max-width: 90px;
+  }
+
+  .exec-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+  }
+
+  .exec-kpi-card {
+    padding: 0.75rem 0.6rem;
+  }
+
+  .kpi-big-number {
+    font-size: 1.2rem;
+  }
+
+  .gis-map-container {
+    height: 300px;
+  }
+
+  #cityGisMap {
+    height: 300px;
+  }
+
+  .map-overlay-legend {
+    display: none;
+  }
+
+  .login-card-container {
+    padding: 1.25rem 0.9rem;
+  }
+}
+
+/* Very narrow devices (<= 340px) */
+@media (max-width: 340px) {
+  .exec-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hw-meta-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .truck-metrics-row {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -248,7 +248,7 @@
           </p>
         </div>
 
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+        <div class="section-actions-group">
           <button class="btn btn-danger" id="btnSimulateCitySurge">
             <span>⚡</span> Simulate Festival Surge (Siddaganga Jathre / Market Rush)
           </button>
@@ -477,9 +477,9 @@
     <main class="city-content" id="tab-hardware" style="display: none;">
       
       <div class="section-action-bar">
-        <div class="site-picker" style="display: flex; align-items: center; gap: 1rem;">
-          <label for="hardwareSiteSelect" style="font-weight: 700; font-size: 0.95rem; color: #93c5fd;">SELECT TUMAKURU SMART HUB TO INSPECT:</label>
-          <select id="hardwareSiteSelect" class="site-select" style="min-width: 420px;">
+        <div class="site-picker">
+          <label for="hardwareSiteSelect" class="site-picker-label">SELECT TUMAKURU SMART HUB TO INSPECT:</label>
+          <select id="hardwareSiteSelect" class="site-select">
             <option value="SITE_TUM_001">SITE_TUM_001 — KSRTC Central Bus Terminal & Ashoka Nagar</option>
             <option value="SITE_TUM_002">SITE_TUM_002 — Mandipet Wholesale Vegetable & Grain Market</option>
             <option value="SITE_TUM_003">SITE_TUM_003 — MG Road & Tumakuru Town Hall Circle</option>
@@ -499,13 +499,13 @@
       </div>
 
       <!-- Hub Metadata Banner -->
-      <div class="glass-panel" style="padding: 1.25rem 1.75rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div class="glass-panel hw-meta-banner">
         <div>
           <span class="site-ward-tag" id="hwWardName">Ward 08 &bull; Central Zone</span>
           <h3 style="font-size: 1.25rem; font-weight: 800;" id="hwHubName">KSRTC Central Bus Terminal & Ashoka Nagar</h3>
           <p style="font-size: 0.8rem; color: var(--text-muted);" id="hwAddress">KSRTC Bus Station Complex, B.H. Road, Tumakuru</p>
         </div>
-        <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="hw-meta-metrics">
           <div class="truck-metric-box">
             <div class="truck-metric-val" id="hwBatteryMv" style="color: #34d399;">4,180 mV</div>
             <div class="truck-metric-lbl">Solar Battery</div>
@@ -702,12 +702,12 @@
     <!-- TAB 6: CITY AUDIT LOGS (CSV) -->
     <main class="city-content" id="tab-audit-logs" style="display: none;">
       
-      <div class="glass-panel" style="padding: 1.75rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div class="glass-panel audit-header-banner">
         <div>
           <h2 style="font-size: 1.4rem; font-weight: 800;">Tumakuru Municipal Alert & Dispatch Audit Log Explorer</h2>
           <p style="color: var(--text-secondary); font-size: 0.85rem;">Persisted audit trail from <code>alert_engine/alert_log.csv</code></p>
         </div>
-        <div style="display: flex; gap: 0.75rem;">
+        <div class="audit-btn-group">
           <button class="btn btn-outline" id="btnRefreshCSV"><span>🔄</span> Refresh Log</button>
           <a class="btn btn-gold" id="btnDownloadCSV" href="/api/logs/csv" download="tumakuru_alert_log.csv"><span>⬇️</span> Download CSV Audit Report</a>
         </div>
